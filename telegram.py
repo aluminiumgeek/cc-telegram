@@ -29,7 +29,10 @@ class Bot:
 
         self.userCommands = {}
         self.ownerCommands = {
-            'load': self.load, 'modprobe': self.modprobe, 'rmmod': self.rmmod}
+            'load': self.load,
+            'modprobe': self.modprobe,
+            'rmmod': self.rmmod
+        }
 
         for file in os.listdir('modules'):
             if file.endswith('.py') and (file.startswith('user_') or file.startswith('owner_')):

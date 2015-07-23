@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # C.C. - telegram bot
 
 import sys
@@ -14,10 +15,12 @@ def main():
 
 
 def help():
-    help = ('Usage: %s [-d|-h|--help]' % sys.argv[0]) +\
-        '\n\n' +\
-        '-d         daemon\n' +\
-        '-h, --help help'
+    help = """
+Usage: {} [-d|-h|--help]
+
+-d\t\tdaemon
+-h, --help\thelp
+""".format(sys.argv[0])
     print(help)
     sys.exit(1)
 
