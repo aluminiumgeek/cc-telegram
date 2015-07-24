@@ -6,4 +6,4 @@ def main(bot, *args):
     See also: load, modprobe, rmmod
     """
 
-    return 'Available commands\nuser: ' + ' '.join(bot.userCommands) + '\nowner: ' + ' '.join(bot.ownerCommands)
+    return 'Available\nuser: {}\nowner: {}'.format(' '.join(bot.commands['user']), ' '.join(bot.commands['owner']))
