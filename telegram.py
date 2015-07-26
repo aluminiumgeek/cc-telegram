@@ -6,6 +6,7 @@ import logging
 import json
 
 import requests
+from requests.exceptions import ConnectionError
 
 import settings
 
@@ -209,11 +210,16 @@ class Bot:
         Get updates from telegram
         """
 
-        updates = self.call('getUpdates', 'GET', params={
-                            'timeout': getattr(settings, 'updates_timeout', 60), 'offset': self.update_id})
-        if updates:
-            self.update_id = updates[-1]['update_id'] + 1
-        return updates
+        try:
+            updates = self.call('getUpdates', 'GET', params={
+                                'timeout': getattr(settings, 'updates_timeout', 60), 'offset': self.update_id})
+        except ConnectionError as e:
+            log.error(e)
+        else:
+            if updates:
+                self.update_id = updates[-1]['update_id'] + 1
+            return updates
+        return []
 
     def call(self, method_name, http_method, **kwargs):
         """
