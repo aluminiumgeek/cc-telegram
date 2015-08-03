@@ -137,6 +137,9 @@ class Bot:
                 if not prefix.startswith('@') and prefix:
                     prefix = '@' + prefix
 
+            if not text:
+                return
+
             cmd, *args = text.split()
             self.chat_id = self._get_chat_id(update)
             result = None
