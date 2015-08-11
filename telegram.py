@@ -37,6 +37,7 @@ class Bot:
                 'rmmod': self.rmmod
             },
             # Modules for bot's reaction to a different message types
+            'text': {},
             'photo': {},
             'audio': {},
             'video': {},
@@ -78,6 +79,7 @@ class Bot:
         except Exception as e:
             error = "MODULE: Can't load {}".format(args[0])
             logging.error(error)
+            logging.error(e)
             return error
         else:
             self.commands[command_type][args[0]] = method
@@ -125,6 +127,8 @@ class Bot:
         Process an update
         """
 
+        self.chat_id = self._get_chat_id(update)
+
         # Process a text command
         if 'message' in update and 'text' in update['message'] and update['message']['text'].startswith('/'):
             text = update['message']['text'].lstrip('/')
@@ -141,7 +145,6 @@ class Bot:
                 return
 
             cmd, *args = text.split()
-            self.chat_id = self._get_chat_id(update)
             result = None
 
             self.pre_send()
@@ -232,7 +235,10 @@ class Bot:
         uri = 'https://api.telegram.org/bot{}/{}'.format(
             self.token, method_name)
         resp = requests.request(http_method, uri, **kwargs)
-        content = json.loads(resp.content.decode('utf-8'))
+        try:
+            content = json.loads(resp.content.decode('utf-8'))
+        except ValueError:
+            return []
 
         if content['ok']:
             return content['result']
