@@ -220,7 +220,7 @@ class Bot:
             updates = self.call('getUpdates', 'GET', params={
                                 'timeout': getattr(settings, 'updates_timeout', 60), 'offset': self.update_id})
         except ConnectionError as e:
-            log.error(e)
+            logging.error(e)
         else:
             if updates:
                 self.update_id = updates[-1]['update_id'] + 1
