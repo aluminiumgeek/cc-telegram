@@ -130,7 +130,7 @@ class Bot:
         self.chat_id = self._get_chat_id(update)
 
         # Process a text command
-        if 'message' in update and 'text' in update['message'] and update['message']['text'].startswith('/'):
+        if 'message' in update and 'text' in update['message'] and update['message']['text'].startswith('/') and not 'forward_from' in update['message']:
             text = update['message']['text'].lstrip('/')
             prefix = None
             error = False
