@@ -140,39 +140,32 @@ class Bot:
                 text, prefix = text.split(' > ', 1)
                 if not prefix.startswith('@') and prefix:
                     prefix = '@' + prefix
-
-            if not text:
-                return
-
-            cmd, *args = text.split()
+            if not text: return
+            cmd, *args = text.split(' ')
             result = None
 
-            self.pre_send()
+            if '@' in cmd:
+                cmd, bot_name = cmd.split('@')
+                if bot_name != settings.name:
+                    return
 
-            if cmd in self.commands['user']:
+            if cmd in self.commands['user'] or (cmd in self.commands['owner'] and self._is_owner(update)):
+                command_type = 'user' if cmd in self.commands['user'] else 'owner'
                 try:
-                    result = self.commands['user'][cmd](self, *args)
+                    cmd_main = self.commands[command_type][cmd]
+                    if not getattr(cmd_main, 'prevent_pre_send', None):
+                        self.pre_send()
+                    result = cmd_main(self, *args)
                 except TypeError as e:
                     if 'positional argument' in str(e):
                         result = 'wrong parameters'
                         error = True
                     else:
                         raise
-            elif cmd in self.commands['owner']:
-                if self._is_owner(update):
-                    try:
-                        result = self.commands['owner'][cmd](self, *args)
-                    except TypeError as e:
-                        if 'positional argument' in str(e):
-                            result = 'wrong parameters'
-                            error = True
-                        else:
-                            raise
-                else:
-                    result = '{}: access denied'.format(cmd)
-                    error = True
+            elif cmd in self.commands['owner'] and not self._is_owner(update):
+                result = '{}: access denied'.format(cmd)
+                error = True
             else:
-                result = 'Command not found: {}'.format(cmd)
                 error = True
 
             if result is not None:
@@ -185,7 +178,7 @@ class Bot:
             for command_type in self.commands:
                 obj = update['message'].get(command_type, None)
                 if obj is not None:
-                    [self.commands[command_type][cmd](self, obj) for cmd in self.commands[command_type]]
+                    [self.commands[command_type][cmd](self, obj, update) for cmd in self.commands[command_type]]
 
     def pre_send(self, chat_id=None, action='typing'):
         """
@@ -204,10 +197,7 @@ class Bot:
         """
 
         if text is not None:
-            data = {
-                'chat_id': chat_id if chat_id is not None else self.chat_id,
-                'text': text
-            }
+            data.update(chat_id=chat_id if chat_id is not None else self.chat_id, text=text)
             logging.debug('Sending: {}'.format(data))
             self.call('sendMessage', 'POST', data=data)
 
