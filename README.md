@@ -1,6 +1,8 @@
 # cc-telegram
 Bot framework for Telegram Messenger
 
+[![tip for next commit](https://tip4commit.com/projects/43141.svg)](https://tip4commit.com/github/aluminiumgeek/cc-telegram)
+
 ## Modules ##
 We are supporting several kinds of modules for bot's reaction to different types of messages:
 * If filename starts with `user_` or `owner_`, the command will be available with `/command` syntax. Bot will call module with args as splitted text after `/command` statement. See `modules/user_echo.py` for example.
