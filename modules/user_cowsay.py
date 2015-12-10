@@ -10,6 +10,6 @@ def main(bot, *args):
     """
 
     text = clean_text(' '.join(args))
-    process = os.popen('cowsay {}'.format(text))
+    process = os.popen(u'cowsay {}'.format(text))
     bot.send(text='```{}```'.format(process.read()), data={'parse_mode': 'Markdown'})
     process.close()
