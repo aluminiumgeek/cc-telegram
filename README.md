@@ -9,3 +9,8 @@ We are supporting several kinds of modules for bot's reaction to different types
 * If filename starts with `audio_`, `video_`, `text_`, etc, bot will call module with [`message`](https://core.telegram.org/bots/api#message) and `update` objects.
 
 You can return any message from module using `return` statement (see `modules/user_lsmod.py`). You also able to call bot's methods directly from module (to call telegram api or to send chat action, for example).
+
+## Running tests ##
+You can run the full test suite using:
+
+`python -m unittest discover tests`

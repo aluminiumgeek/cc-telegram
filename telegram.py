@@ -10,7 +10,7 @@ from requests.exceptions import ConnectionError
 
 import settings
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG if settings.debug else logging.INFO)
 
 
 class Bot:
@@ -160,7 +160,7 @@ class Bot:
                     if 'positional argument' in str(e):
                         result = 'wrong parameters'
                         error = True
-                    else:
+                    if settings.debug:
                         raise
             elif cmd in self.commands['owner'] and not self._is_owner(update):
                 result = '{}: access denied'.format(cmd)
