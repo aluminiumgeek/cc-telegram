@@ -44,11 +44,11 @@ def main(bot, *args):
         response = bot.img_last_response
 
     try:
-        data = json.loads(response.decode('utf-8'))
+        search_data = json.loads(response.decode('utf-8'))
     except ValueError:
         return 'Can not get results'
 
-    results = data.get('d', {}).get('results', [])
+    results = search_data.get('d', {}).get('results', [])
     if len(results) >= i + 1:
         while results[i - 1:]:
             bot.img_last_num = i
@@ -61,12 +61,25 @@ def main(bot, *args):
         else:
             return 'No such images'
 
-        bot.call(
+        data = {'chat_id': bot.chat_id}
+        file_in_store = False
+        if bot.store:
+            file_id = bot.store.get(url)
+            if file_id:
+                data.update(photo=file_id)
+                file_in_store = True
+                files = None
+        if not file_in_store:
+            files = {'photo': ('file.{}'.format(ext), photo, results[i]['ContentType'])}
+
+        response = bot.call(
             'sendPhoto',
             'POST',
-            data={'chat_id': bot.chat_id},
-            files={'photo': ('file.{}'.format(ext), photo, results[i]['ContentType'])}
+            data=data,
+            files=files
         )
+        if response and response.get('photo') and not file_in_store and bot.store:
+            bot.store.set(url, response['photo'][-1]['file_id'])
     else:
         return 'No such images'
 
