@@ -43,7 +43,7 @@ class Bot(object):
         }
 
         for file in os.listdir('modules'):
-            if file.endswith('.py'):
+            if file.endswith('.py') and file != '__init__.py':
                 command_type, command = file.split('_', 1)
                 self.modprobe(self, command[:-3])
 
