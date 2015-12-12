@@ -5,8 +5,8 @@ import requests
 
 def main(bot, *args):
     """
-    g [y|w|m] [search query]
-    Search on Google.
+    g [y|w|m] <search query>
+    Search on google
     `y` option enables site:youtube.com
     `w` option enables site:en.wikipedia.org
     `m` option enables site:myanimelist.net

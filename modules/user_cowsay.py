@@ -5,7 +5,7 @@ from modules.utils.text import clean_text
 
 def main(bot, *args):
     """
-    cowsay [text]
+    cowsay <text>
     Speaking cow
     """
 

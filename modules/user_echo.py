@@ -1,7 +1,7 @@
 
 def main(bot, *args):
     """
-    echo [text]
+    echo <text>
     Echoes input text
     """
 

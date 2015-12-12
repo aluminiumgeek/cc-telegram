@@ -6,7 +6,7 @@ def main(bot, *args):
     date
     Current datetime
 
-    date [username]
+    date <username>
     Date someone
     """
 
