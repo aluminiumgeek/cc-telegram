@@ -10,6 +10,7 @@ def main(bot, module):
     elif module in bot.commands['owner']:
         result = bot.commands['owner'][module].__doc__
     else:
-        result = 'No such command'
+        return 'No such command'
 
-    return result or 'No manual entry for `{}`'.format(module)
+    result = result or 'No manual entry for `{}`'.format(module)
+    bot.send(text=result, data={'disable_web_page_preview': True})
