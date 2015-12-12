@@ -1,6 +1,7 @@
 import re
 import json
 import requests
+from urllib.parse import unquote
 
 
 def main(bot, *args):
@@ -29,7 +30,15 @@ def main(bot, *args):
         appendix = options[args.pop(0)]
     query = '{} {}'.format(' '.join(args), appendix)
 
-    response = requests.get('http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q={}'.format(query))
+    key = getattr(bot.settings, 'google_api_key', None)
+    if not key:
+        return 'Google API Key is not specified in settings'
+    params = {
+        'v': '1.0',
+        'q': query,
+        'key': key
+    }
+    response = requests.get('http://ajax.googleapis.com/ajax/services/search/web', params=params)
     try:
         response = json.loads(response.content.decode('utf-8'))
     except ValueError:
@@ -38,6 +47,6 @@ def main(bot, *args):
     items = response.get('responseData', {}).get('results', [])
     if len(items) > 0:
         item = items[1]
-        return '{}\n{}\n{}'.format(item['titleNoFormatting'], re.sub(r'<.*?>', '', item['content']), item['url'])
+        return '{}\n{}\n{}'.format(item['titleNoFormatting'], re.sub(r'<.*?>', '', item['content']), unquote(item['url']))
 
     return 'No such items'
