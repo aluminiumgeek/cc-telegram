@@ -28,6 +28,6 @@ if __name__ == '__main__':
             os.setsid()
             pid = os.fork()
             if pid == 0:
-                main()
+                main(options.settings)
     else:
         main(options.settings)
