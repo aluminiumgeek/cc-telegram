@@ -8,16 +8,14 @@ import json
 import requests
 from requests.exceptions import ConnectionError
 
-import settings
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG if settings.debug else logging.INFO)
+class Bot(object):
 
-
-class Bot:
-
-    def __init__(self, token):
-        self.token = token
+    def __init__(self, settings):
+        logging.basicConfig(stream=sys.stdout, level=logging.DEBUG if settings.debug else logging.INFO)
+        self.token = settings.token
         self.update_id = 0
+        self.settings = settings
 
         self.load()
 
@@ -130,7 +128,7 @@ class Bot:
         self.chat_id = self._get_chat_id(update)
 
         # Process a text command
-        if 'message' in update and 'text' in update['message'] and update['message']['text'].startswith('/') and not 'forward_from' in update['message']:
+        if 'message' in update and 'text' in update['message'] and update['message']['text'].startswith('/') and 'forward_from' not in update['message']:
             text = update['message']['text'].lstrip('/')
             prefix = None
             error = False
@@ -140,13 +138,14 @@ class Bot:
                 text, prefix = text.split(' > ', 1)
                 if not prefix.startswith('@') and prefix:
                     prefix = '@' + prefix
-            if not text: return
+            if not text:
+                return
             cmd, *args = text.split(' ')
             result = None
 
             if '@' in cmd:
                 cmd, bot_name = cmd.split('@')
-                if bot_name != settings.name:
+                if bot_name != self.settings.name:
                     return
 
             if cmd in self.commands['user'] or (cmd in self.commands['owner'] and self._is_owner(update)):
@@ -160,7 +159,7 @@ class Bot:
                     if 'positional argument' in str(e):
                         result = 'wrong parameters'
                         error = True
-                    if settings.debug:
+                    if self.settings.debug:
                         raise
             elif cmd in self.commands['owner'] and not self._is_owner(update):
                 result = '{}: access denied'.format(cmd)
@@ -182,7 +181,7 @@ class Bot:
 
     def pre_send(self, chat_id=None, action='typing'):
         """
-        Pre send hook. Send 'typing...' or another chat action 
+        Pre send hook. Send 'typing...' or another chat action
         """
 
         data = {
@@ -208,7 +207,7 @@ class Bot:
 
         try:
             updates = self.call('getUpdates', 'GET', params={
-                                'timeout': getattr(settings, 'updates_timeout', 60), 'offset': self.update_id})
+                                'timeout': getattr(self.settings, 'updates_timeout', 60), 'offset': self.update_id})
         except ConnectionError as e:
             logging.error(e)
         else:
@@ -236,7 +235,7 @@ class Bot:
             logging.error(resp.content)
 
     def _is_owner(self, update):
-        return update.get('message', {}).get('from', {}).get('username', '') == settings.owner
+        return update.get('message', {}).get('from', {}).get('username', '') == self.settings.owner
 
     def _get_chat_id(self, update):
         return update.get('message', {}).get('chat', {}).get('id', None)

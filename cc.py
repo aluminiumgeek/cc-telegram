@@ -1,45 +1,33 @@
 #!/usr/bin/env python3
 # C.C. - telegram bot
 
+import importlib
 import sys
 import os
+from optparse import OptionParser
 os.chdir(sys.path[0])
 
-import settings
 from telegram import Bot
 
 
-def main():
-    bot = Bot(settings.token)
+def main(settings_module):
+    settings = importlib.import_module(settings_module)
+    bot = Bot(settings)
     bot.start()
 
 
-def help():
-    help = """
-Usage: {} [-d|-h|--help]
-
--d\t\tdaemon
--h, --help\thelp
-""".format(sys.argv[0])
-    print(help)
-    sys.exit(1)
-
-
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        if sys.argv[1] == '-h' or sys.argv[1] == '--help':
-            help()
+    parser = OptionParser()
+    parser.add_option('-d', '--daemon', action='store_true', dest='daemon', default=False, help='Run in background')
+    parser.add_option('-s', '--settings', dest='settings', default='settings', help='Settings module')
+    options, _ = parser.parse_args()
 
-        elif sys.argv[1] == '-d':
-            logfile = 'bot.log'
-
+    if options.daemon:
+        pid = os.fork()
+        if pid == 0:
+            os.setsid()
             pid = os.fork()
             if pid == 0:
-                os.setsid()
-                pid = os.fork()
-                if pid == 0:
-                    main()
-        else:
-            help()
+                main()
     else:
-        main()
+        main(options.settings)
