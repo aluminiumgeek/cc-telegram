@@ -7,6 +7,10 @@ import json
 
 import requests
 from requests.exceptions import ConnectionError
+try:
+    import redis
+except ImportError:
+    redis = False
 
 
 class Bot(object):
@@ -16,6 +20,8 @@ class Bot(object):
         self.token = settings.token
         self.update_id = 0
         self.settings = settings
+
+        self.store = redis.StrictRedis(host='localhost', port=6379, db=1) if redis else None
 
         self.load()
 
