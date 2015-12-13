@@ -1,6 +1,6 @@
 from io import BytesIO
 import requests
-from requests.exception import RequestException
+from requests.exceptions import RequestException
 
 
 def prepare_binary_from_url(url):
