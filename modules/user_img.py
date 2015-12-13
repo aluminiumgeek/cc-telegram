@@ -50,7 +50,7 @@ def main(bot, *args):
 
     results = search_data.get('d', {}).get('results', [])
     if len(results) >= i + 1:
-        while results[i - 1:]:
+        while results[i - 1 if i > 1 else i:]:
             bot.img_last_num = i
             url = results[i]['MediaUrl']
             ext = url.rsplit('.', 1)[1]
