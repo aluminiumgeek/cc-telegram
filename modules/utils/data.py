@@ -1,7 +1,12 @@
 from io import BytesIO
 import requests
+from requests.exception import RequestException
 
 
 def prepare_binary_from_url(url):
-    content = requests.get(url).content
-    return BytesIO(content)
+    try:
+        content = requests.get(url).content
+    except RequestException:
+        pass
+    else:
+        return BytesIO(content)

@@ -56,7 +56,8 @@ def main(bot, *args):
             ext = url.rsplit('.', 1)[1]
             if ext.lower() in ('jpg', 'jpeg', 'gif', 'png'):
                 photo = prepare_binary_from_url(url)
-                break
+                if photo:
+                    break
             i += 1
         else:
             return 'No such images'
