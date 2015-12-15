@@ -10,7 +10,7 @@ def main(bot, *args):
     """
 
     text = clean_text(' '.join(args))
-    if not test.strip():
+    if not text.strip():
         return
 
     process = os.popen(u'cowsay {}'.format(text))
