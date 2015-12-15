@@ -46,7 +46,7 @@ def main(bot, *args):
 
     items = response.get('responseData', {}).get('results', [])
     if len(items) > 0:
-        item = items[1]
+        item = items[0]
         return '{}\n{}\n{}'.format(item['titleNoFormatting'], re.sub(r'<.*?>', '', item['content']), unquote(item['url']))
 
     return 'No such items'
