@@ -8,7 +8,7 @@ Clone the repo, fill settings.py with your settings. Run:
 
 `python3 cc.py`
 
-You can also run bot with different config module. For example, if your settings file called `settings_text.py`, run:
+You can also run bot with different config module. For example, if your settings file called `settings_test.py`, run:
 
 `python3 cc.py -s settings_test`
 
