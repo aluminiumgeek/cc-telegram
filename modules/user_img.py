@@ -4,6 +4,7 @@ import requests
 
 from modules.utils.data import prepare_binary_from_url
 
+
 def check_store(bot, url):
     if bot.store:
         return bot.store.get(url)

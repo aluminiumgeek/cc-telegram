@@ -61,4 +61,3 @@ class UserGoogleTestCase(BaseModuleTestCase):
     @patch('modules.user_g.requests.get', lambda *args, **kwargs: MagicMock(content=b'{"responseData": {"results": []}}'))
     def test_module_should_return_error_message_when_no_results(self):
         self.assertEqual(user_g.main(self.bot, 'dank', 'memes'), 'No such items')
-
