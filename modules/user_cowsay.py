@@ -10,7 +10,7 @@ def main(bot, *args):
     """
 
     text = clean_text(' '.join(args))
-    if not text.strip():
+    if not text.strip() or not list(filter(lambda x: not x.startswith('-'), text.split())):
         return
 
     process = subprocess.Popen(
