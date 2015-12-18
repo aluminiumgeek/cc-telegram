@@ -32,5 +32,5 @@ Check currently available modules by running `/lsmod` command in chat.
 ## Running tests ##
 You can run the full test suite using:
 
-`python -m unittest discover tests`
+`python3 -m unittest discover tests`
 
