@@ -4,6 +4,10 @@ import requests
 
 from modules.utils.data import prepare_binary_from_url
 
+def check_store(bot, url):
+    if bot.store:
+        return bot.store.get(url)
+
 
 def main(bot, *args):
     """
@@ -55,7 +59,8 @@ def main(bot, *args):
             url = results[i]['MediaUrl']
             ext = url.rsplit('.', 1)[1]
             if ext.lower() in ('jpg', 'jpeg', 'gif', 'png'):
-                photo = prepare_binary_from_url(url)
+                file_id = check_store(bot, url)
+                photo = file_id if file_id else prepare_binary_from_url(url)
                 if photo:
                     break
             i += 1
@@ -63,14 +68,10 @@ def main(bot, *args):
             return 'No such images'
 
         data = {'chat_id': bot.chat_id}
-        file_in_store = False
-        if bot.store:
-            file_id = bot.store.get(url)
-            if file_id:
-                data.update(photo=file_id)
-                file_in_store = True
-                files = None
-        if not file_in_store:
+        if file_id:
+            data.update(photo=file_id)
+            files = None
+        else:
             files = {'photo': ('file.{}'.format(ext), photo, results[i]['ContentType'])}
 
         response = bot.call(
@@ -79,7 +80,7 @@ def main(bot, *args):
             data=data,
             files=files
         )
-        if response and response.get('photo') and not file_in_store and bot.store:
+        if response and response.get('photo') and not file_id and bot.store:
             bot.store.set(url, response['photo'][-1]['file_id'])
     else:
         return 'No such images'
