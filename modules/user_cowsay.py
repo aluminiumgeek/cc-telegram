@@ -1,4 +1,4 @@
-import os
+import subprocess
 
 from modules.utils.text import clean_text
 
@@ -13,6 +13,13 @@ def main(bot, *args):
     if not text.strip():
         return
 
-    process = os.popen(u'cowsay {}'.format(text))
-    bot.send(text='```{}```'.format(process.read()), data={'parse_mode': 'Markdown'})
-    process.close()
+    process = subprocess.Popen(
+        u'cowsay {}'.format(text),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True,
+        universal_newlines=True
+    )
+    output, error = process.communicate()
+    if output or error:
+        bot.send(text='```{}```'.format(output if output else error), data={'parse_mode': 'Markdown'})
