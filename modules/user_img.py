@@ -43,7 +43,10 @@ def main(bot, *args):
     # Cache response to decrease number of requests to the bing api
     if last_query != query:
         # TODO: use `params` here, investigate 'Query is not of type String' error from azure
-        response = requests.get('https://api.datamarket.azure.com/Bing/Search/v1/Image?Market=%27ru-RU%27&Adult=%27Moderate%27&Query=%27{}%27&$format=json&$top=20'.format(query), headers=headers).content
+        try:
+            response = requests.get('https://api.datamarket.azure.com/Bing/Search/v1/Image?Market=%27ru-RU%27&Adult=%27Moderate%27&Query=%27{}%27&$format=json&$top=20'.format(query), headers=headers, timeout=4).content
+        except requests.exceptions.Timeout:
+            return 'Can not get results'
         bot.img_last_response = response
     else:
         response = bot.img_last_response
