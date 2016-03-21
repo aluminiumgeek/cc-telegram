@@ -32,8 +32,8 @@ def main(bot, *args, **kwargs):
     i = 0
 
     last_time = getattr(bot, 'img_last_time', None)
-    if last_time and last_time > datetime.now() - timedelta(seconds=3):
-        return 
+    if last_time and last_time > datetime.now() - timedelta(seconds=1):
+        return 'Not so fast'
 
     if last_query == query or (not args and last_query):
         if not args:
