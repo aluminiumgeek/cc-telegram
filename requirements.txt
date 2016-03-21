@@ -1,3 +1,3 @@
-#-r modules/requirements.txt #  uncomment to install requirements for all modules
-#-r requirements.test.txt #  uncomment to install requirements for running tests
+-r modules/requirements.txt #  uncomment to install requirements for all modules
+-r requirements.test.txt #  uncomment to install requirements for running tests
 requests==2.7.0
