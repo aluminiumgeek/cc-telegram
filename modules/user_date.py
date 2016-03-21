@@ -1,7 +1,7 @@
 from datetime import datetime
 
 
-def main(bot, *args):
+def main(bot, *args, **kwargs):
     """
     date
     Current datetime

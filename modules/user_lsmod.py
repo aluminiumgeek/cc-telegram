@@ -1,5 +1,5 @@
 
-def main(bot, *args):
+def main(bot, *args, **kwargs):
     """
     lsmod
     Show loaded modules.

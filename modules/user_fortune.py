@@ -2,7 +2,7 @@ import os
 import random
 
 
-def main(bot, *args):
+def main(bot, *args, **kwargs):
     """
     fortune
     Print a random, hopefully interesting, adage

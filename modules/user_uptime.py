@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 
-def main(bot, *args):
+def main(bot, *args, **kwargs):
     """
     uptime
     Print system uptime

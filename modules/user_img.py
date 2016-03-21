@@ -17,7 +17,7 @@ def response(bot, message):
     return message
 
 
-def main(bot, *args):
+def main(bot, *args, **kwargs):
     """
     img [query]
     Search for images around the internet.
@@ -85,7 +85,7 @@ def main(bot, *args):
         else:
             return response(bot, 'No such images')
 
-        data = {'chat_id': bot.chat_id}
+        data = {'chat_id': kwargs.get('chat_id')}
         if file_id:
             data.update(photo=file_id)
             files = None
@@ -93,7 +93,7 @@ def main(bot, *args):
             files = {'photo': ('file.{}'.format(ext), photo, results[i]['ContentType'])}
 
         # Send custom chat action
-        bot.pre_send(action='upload_photo')
+        bot.pre_send(chat_id=kwargs.get('chat_id'), action='upload_photo')
 
         telegram_response = bot.call(
             'sendPhoto',

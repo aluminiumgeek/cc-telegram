@@ -4,7 +4,7 @@ import requests
 from urllib.parse import unquote
 
 
-def main(bot, *args):
+def main(bot, *args, **kwargs):
     """
     g [y|w|m] <search query>
     Search on google

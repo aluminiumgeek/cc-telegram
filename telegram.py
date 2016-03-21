@@ -46,7 +46,7 @@ class Executor(object):
         self.loop.run_forever()
 
     def call(self, module, *args, **kwargs):
-        chat_id = kwargs.pop('chat_id')
+        chat_id = kwargs.get('chat_id')
         task = asyncio.run_coroutine_threadsafe(self.run(module, *args, **kwargs), self.loop)
         task.add_done_callback(functools.partial(self.callback, chat_id=chat_id))
         return task
@@ -260,7 +260,6 @@ class Bot(object):
         """
         Send message to a chat
         """
-
         if text:
             data.update(chat_id=chat_id if chat_id is not None else self.chat_id, text=text)
             logging.debug('Sending: {}'.format(data))
