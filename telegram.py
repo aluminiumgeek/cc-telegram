@@ -1,3 +1,5 @@
+import asyncio
+import functools
 import os
 import sys
 import time
@@ -6,11 +8,51 @@ import logging
 import json
 
 import requests
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, ReadTimeout
+from requests.packages.urllib3.exceptions import ProtocolError
 try:
     import redis
 except ImportError:
     redis = False
+
+
+class TemporaryStore(object):
+
+    def __init__(self):
+        self.store = {}
+
+    def get(self, key, default):
+        return self.store.get(key, default)
+
+    def set(self, key, value):
+        self.store[key] = value
+
+
+class Executor(object):
+
+    def __init__(self, callback):
+        self.callback = callback
+        self.loop = asyncio.get_event_loop()
+
+    def __del__(self):
+        self.close()
+
+    def call(self, module, *args, **kwargs):
+        chat_id = kwargs.pop('chat_id')
+        task = asyncio.ensure_future(self.run(module, *args, **kwargs))
+        task.add_done_callback(functools.partial(self.callback, chat_id=chat_id))
+        return task
+
+    def wait(self, tasks):
+        if tasks:
+            self.loop.run_until_complete(asyncio.wait(tasks))
+
+    @asyncio.coroutine
+    def run(self, module, *args, **kwargs):
+        return module(*args, **kwargs)
+
+    def close(self):
+        self.loop.close()
 
 
 class Bot(object):
@@ -20,8 +62,14 @@ class Bot(object):
         self.token = settings.token
         self.update_id = 0
         self.settings = settings
+        self.executor = Executor(lambda task, chat_id: self.send(chat_id=chat_id, text=task.result()))
 
-        self.store = redis.StrictRedis(host='localhost', port=6379, db=1) if redis else None
+        store_params = {'db': 1}
+        if getattr(settings, 'redis_socket', None):
+            store_params.update(unix_socket_path=settings.redis_socket)
+        else:
+            store_params.update(host=getattr(settings, 'redis_host', 'localhost'), port=getattr(settings,'redis_port', 6379))
+        self.store = redis.StrictRedis(**store_params) if redis else TemporaryStore()
 
         self.load()
 
@@ -123,36 +171,43 @@ class Bot(object):
         while True:
             updates = self.get_updates()
             logging.debug(updates)
+            tasks = []
             for update in updates:
-                self.process(update)
+                process = self.process(update)
+                if isinstance(process, asyncio.Task):
+                    tasks.append(process)
+                elif isinstance(process, (list, tuple)):
+                    tasks += list(process)
+            self.executor.wait(tasks)
 
     def process(self, update):
         """
         Process an update
         """
-
         self.chat_id = self._get_chat_id(update)
 
         # Process a text command
         if 'message' in update and 'text' in update['message'] and update['message']['text'].startswith('/') and 'forward_from' not in update['message']:
             text = update['message']['text'].lstrip('/')
-            prefix = None
+            self.prefix = None
             error = False
 
             # Some user have been highlighted
             if ' > ' in text:
-                text, prefix = text.split(' > ', 1)
-                if not prefix.startswith('@') and prefix:
-                    prefix = '@' + prefix
-            if not text:
+                text, self.prefix = text.split(' > ', 1)
+                if not self.prefix.startswith('@') and self.prefix:
+                    self.prefix = '@' + self.prefix
+            if not text.strip():
                 return
-            cmd, *args = text.split(' ')
+            cmd, *args = text.split()
             result = None
 
+            # Command called with /command@NameOfBot syntax
             if '@' in cmd:
-                cmd, bot_name = cmd.split('@')
-                if bot_name != self.settings.name:
-                    return
+                if cmd.split('@') == 2:
+                    cmd, bot_name = cmd.split('@')
+                    if bot_name != self.settings.name:
+                        return
 
             if cmd in self.commands['user'] or (cmd in self.commands['owner'] and self._is_owner(update)):
                 command_type = 'user' if cmd in self.commands['user'] else 'owner'
@@ -160,7 +215,7 @@ class Bot(object):
                     cmd_main = self.commands[command_type][cmd]
                     if not getattr(cmd_main, 'prevent_pre_send', None):
                         self.pre_send()
-                    result = cmd_main(self, *args)
+                    return self.executor.call(cmd_main, self, *args, chat_id=self.chat_id)
                 except TypeError as e:
                     if 'positional argument' in str(e):
                         result = 'wrong parameters'
@@ -174,8 +229,8 @@ class Bot(object):
                 error = True
 
             if result is not None:
-                if prefix and not error:
-                    result = '{}, {}'.format(prefix, result)
+                if self.prefix and not error:
+                    result = '{}, {}'.format(self.prefix, result)
                 self.send(self.chat_id, text=result)
 
         # Process a message with some media (audio, photo, video, etc)
@@ -183,7 +238,7 @@ class Bot(object):
             for command_type in self.commands:
                 obj = update['message'].get(command_type, None)
                 if obj is not None:
-                    [self.commands[command_type][cmd](self, obj, update) for cmd in self.commands[command_type]]
+                    return [self.executor.call(self.commands[command_type][cmd], self, obj, update, chat_id=self.chat_id) for cmd in self.commands[command_type]]
 
     def pre_send(self, chat_id=None, action='typing'):
         """
@@ -201,7 +256,7 @@ class Bot(object):
         Send message to a chat
         """
 
-        if text is not None:
+        if text:
             data.update(chat_id=chat_id if chat_id is not None else self.chat_id, text=text)
             logging.debug('Sending: {}'.format(data))
             self.call('sendMessage', 'POST', data=data)
@@ -227,18 +282,27 @@ class Bot(object):
         Call a Telegram API method
         """
 
+        attempt = kwargs.pop('attempt', 0)
+        if attempt and attempt > 4:
+            return []
+
+        kwargs.update(timeout=(1, 4))
+
         uri = 'https://api.telegram.org/bot{}/{}'.format(
             self.token, method_name)
-        resp = requests.request(http_method, uri, **kwargs)
+        try:
+            resp = requests.request(http_method, uri, **kwargs)
+        except (ReadTimeout, ProtocolError):
+            return self.call(method_name, http_method, attempt=attempt+1, **kwargs)
         try:
             content = json.loads(resp.content.decode('utf-8'))
         except ValueError:
             return []
-
         if content['ok']:
             return content['result']
         else:
             logging.error(resp.content)
+        return []
 
     def _is_owner(self, update):
         return update.get('message', {}).get('from', {}).get('username', '') == self.settings.owner
