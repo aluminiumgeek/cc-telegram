@@ -6,6 +6,7 @@ import time
 import imp
 import logging
 import json
+from threading import Thread
 
 import requests
 from requests.exceptions import ConnectionError, ReadTimeout
@@ -32,24 +33,28 @@ class Executor(object):
 
     def __init__(self, callback):
         self.callback = callback
-        self.loop = asyncio.get_event_loop()
+
+        # Run new event loop in another thread
+        Thread(target=self.init_loop).start()
 
     def __del__(self):
         self.close()
 
+    def init_loop(self):
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+        self.loop.run_forever()
+
     def call(self, module, *args, **kwargs):
         chat_id = kwargs.pop('chat_id')
-        task = asyncio.ensure_future(self.run(module, *args, **kwargs))
+        task = asyncio.run_coroutine_threadsafe(self.run(module, *args, **kwargs), self.loop)
         task.add_done_callback(functools.partial(self.callback, chat_id=chat_id))
         return task
 
-    def wait(self, tasks):
-        if tasks:
-            self.loop.run_until_complete(asyncio.wait(tasks))
-
     @asyncio.coroutine
     def run(self, module, *args, **kwargs):
-        return module(*args, **kwargs)
+        future = self.loop.run_in_executor(None, functools.partial(module, *args, **kwargs))
+        yield from future
 
     def close(self):
         self.loop.close()
@@ -178,7 +183,7 @@ class Bot(object):
                     tasks.append(process)
                 elif isinstance(process, (list, tuple)):
                     tasks += list(process)
-            self.executor.wait(tasks)
+            logging.debug('Running tasks: {}'.format(tasks))
 
     def process(self, update):
         """
