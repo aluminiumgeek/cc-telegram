@@ -22,7 +22,7 @@ To get all available options check:
 
 ## Modules ##
 All modules should be written with async in mind, since modules executor is non-blocking and built on top of Python's `asyncio`.  
-However, if you write blocking module, it will not block main event loop, CC is designed to run blocking module in another thread.
+However, if you write blocking module, it will not block main event loop anyway, CC is designed to run blocking module in another thread.
 
 Async modules should define `main` method as `async def main(bot, *args, **kwargs)` and use `await` keyword where it's needed. You can check some modules inside `modules` dir of this repo and see differences between blocking and non-blocking modules.
 
