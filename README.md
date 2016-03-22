@@ -28,7 +28,7 @@ Async modules should define `main` method as `async def main(bot, *args, **kwarg
 
 Module types:
 - `user_*` - command called with '/command' syntax, available for all users
-- `admin_*` - command called with '/command' syntax, available only for admin
+- `owner_*` - command called with '/command' syntax, available only for owner (that is set in the settings)
 - `audio_*` - module will be called on each audio message
 - `video_*` - called on each video message
 - `text_*` - called on each text message
