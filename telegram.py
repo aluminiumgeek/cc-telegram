@@ -212,7 +212,7 @@ class Bot(object):
 
             # Command called with /command@NameOfBot syntax
             if '@' in cmd:
-                if cmd.split('@') == 2:
+                if len(cmd.split('@')) == 2:
                     cmd, bot_name = cmd.split('@')
                     if bot_name != self.settings.name:
                         return
