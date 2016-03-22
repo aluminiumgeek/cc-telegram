@@ -1,5 +1,5 @@
 # cc-telegram
-Bot framework for Telegram Messenger
+Async bot framework for Telegram Messenger designed for Python >= 3.5
 
 [![tip for next commit](https://tip4commit.com/projects/43141.svg)](https://tip4commit.com/github/aluminiumgeek/cc-telegram)
 
@@ -21,11 +21,19 @@ To get all available options check:
 `python3 cc.py --help`
 
 ## Modules ##
-Several kinds of modules for bot's reaction to different types of messages are supported:
-* If filename starts with `user_` or `owner_`, the command will be available with `/command` syntax. A module will be called with args as splitted text after `/command` statement. See `modules/user_echo.py` for example.
-* If filename starts with `audio_`, `video_`, `text_`, etc, bot will call module with [`message`](https://core.telegram.org/bots/api#message) and `update` objects.
+All modules should be written with async in mind, since modules executor is non-blocking and built on top of Python's `asyncio`.  
+However, if you write blocking module, it will not block main event loop, CC is designed to run blocking module in another thread.
 
-You can return any message from module using `return` statement (see `modules/user_lsmod.py`). You also able to call bot's methods directly from module (to call telegram api or to send chat action, for example).
+Async modules should define `main` method as `async def main(bot, *args, **kwargs)` and use `await` keyword where it's needed. You can check some modules inside `modules` dir of this repo and see differences between blocking and non-blocking modules.
+
+Module types:
+- `user_*` - command called with '/command' syntax, available for all users
+- `admin_*` - command called with '/command' syntax, available only for admin
+- `audio_*` - module will be called on each audio message
+- `video_*` - called on each video message
+- `text_*` - called on each text message
+- `photo_*` - called on each message with photo
+- `sticker_*` - called on each message with sticker
 
 Check currently available modules by running `/lsmod` command in chat.
 

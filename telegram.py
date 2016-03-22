@@ -51,10 +51,13 @@ class Executor(object):
         task.add_done_callback(functools.partial(self.callback, chat_id=chat_id))
         return task
 
-    @asyncio.coroutine
-    def run(self, module, *args, **kwargs):
-        future = self.loop.run_in_executor(None, functools.partial(module, *args, **kwargs))
-        yield from future
+    async def run(self, module, *args, **kwargs):
+        if asyncio.iscoroutinefunction(module):
+            return await module(*args, **kwargs)
+        else:
+            # Run blocking modules in another thread, so it won't block event loop anyway
+            future = self.loop.run_in_executor(None, functools.partial(module, *args, **kwargs))
+            return await future
 
     def close(self):
         self.loop.close()
