@@ -7,6 +7,7 @@ import imp
 import logging
 import json
 from threading import Thread
+from typing import Any, Callable, List, Optional, Union
 
 import requests
 from requests.exceptions import ConnectionError, ReadTimeout
@@ -22,16 +23,16 @@ class TemporaryStore(object):
     def __init__(self):
         self.store = {}
 
-    def get(self, key, default):
+    def get(self, key: str, default: Any) -> Any:
         return self.store.get(key, default)
 
-    def set(self, key, value):
+    def set(self, key: str, value: Any) -> None:
         self.store[key] = value
 
 
 class Executor(object):
 
-    def __init__(self, callback):
+    def __init__(self, callback: Callable[[asyncio.Task, str], None]):
         self.callback = callback
 
         # Run new event loop in another thread
@@ -45,13 +46,13 @@ class Executor(object):
         asyncio.set_event_loop(self.loop)
         self.loop.run_forever()
 
-    def call(self, module, *args, **kwargs):
+    def call(self, module: Callable[..., Optional[str]], *args, **kwargs) -> asyncio.Task:
         chat_id = kwargs.get('chat_id')
         task = asyncio.run_coroutine_threadsafe(self.run(module, *args, **kwargs), self.loop)
         task.add_done_callback(functools.partial(self.callback, chat_id=chat_id))
         return task
 
-    async def run(self, module, *args, **kwargs):
+    async def run(self, module: Callable[..., Optional[str]], *args, **kwargs):
         if asyncio.iscoroutinefunction(module):
             return await module(*args, **kwargs)
         else:
@@ -188,7 +189,7 @@ class Bot(object):
                     tasks += list(process)
             logging.debug('Running tasks: {}'.format(tasks))
 
-    def process(self, update):
+    def process(self, update: dict) -> Union[asyncio.Task, List[asyncio.Task], None]:
         """
         Process an update
         """
@@ -248,7 +249,7 @@ class Bot(object):
                 if obj is not None:
                     return [self.executor.call(self.commands[command_type][cmd], self, obj, update, chat_id=self.chat_id) for cmd in self.commands[command_type]]
 
-    def pre_send(self, chat_id=None, action='typing'):
+    def pre_send(self, chat_id: Optional[str]=None, action: str='typing') -> None:
         """
         Pre send hook. Send 'typing...' or another chat action
         """
@@ -259,7 +260,7 @@ class Bot(object):
         }
         self.call('sendChatAction', 'POST', data=data)
 
-    def send(self, chat_id=None, text=None, data={}):
+    def send(self, chat_id: Optional[str]=None, text: Optional[str]=None, data: dict={}) -> None:
         """
         Send message to a chat
         """
@@ -268,7 +269,7 @@ class Bot(object):
             logging.debug('Sending: {}'.format(data))
             self.call('sendMessage', 'POST', data=data)
 
-    def get_updates(self):
+    def get_updates(self) -> List[dict]:
         """
         Get updates from telegram
         """
@@ -284,7 +285,7 @@ class Bot(object):
             return updates
         return []
 
-    def call(self, method_name, http_method, **kwargs):
+    def call(self, method_name: str, http_method: str, **kwargs):
         """
         Call a Telegram API method
         """
@@ -311,8 +312,8 @@ class Bot(object):
             logging.error(resp.content)
         return []
 
-    def _is_owner(self, update):
+    def _is_owner(self, update: dict) -> bool:
         return update.get('message', {}).get('from', {}).get('username', '') == self.settings.owner
 
-    def _get_chat_id(self, update):
+    def _get_chat_id(self, update: dict) -> Optional[str]:
         return update.get('message', {}).get('chat', {}).get('id', None)
