@@ -1,5 +1,6 @@
 # cc-telegram
-Async bot framework for Telegram Messenger designed for Python >= 3.5. Named after [シー・ツー ](https://en.wikipedia.org/wiki/C.C._(Code_Geass))
+Async bot framework for Telegram Messenger designed for Python >= 3.5.  
+Named after [シー・ツー ](https://en.wikipedia.org/wiki/C.C._(Code_Geass))
 
 [![tip for next commit](https://tip4commit.com/projects/43141.svg)](https://tip4commit.com/github/aluminiumgeek/cc-telegram)
 
