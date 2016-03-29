@@ -1,14 +1,16 @@
 # cc-telegram
-Async bot framework for Telegram Messenger designed for Python >= 3.5
+Async bot framework for Telegram Messenger designed for Python >= 3.5.  
+Named after [シー・ツー ](https://en.wikipedia.org/wiki/C.C._(Code_Geass))
 
-[![tip for next commit](https://tip4commit.com/projects/43141.svg)](https://tip4commit.com/github/aluminiumgeek/cc-telegram)
+[![tip for next commit](https://tip4commit.com/projects/43141.svg)](https://tip4commit.com/github/aluminiumgeek/cc-telegram)  
+![1](https://img.shields.io/badge/code-geass-green.svg)
 
 ## Running ##
 Clone the repo, fill settings.py with your settings. Run:
 
 `python3 cc.py`
 
-You can also run bot with different config module. For example, if your settings file called `settings_test.py`, run:
+You can also run bot with different config module. For example, if your settings file is called `settings_test.py`, run:
 
 `python3 cc.py -s settings_test`
 
