@@ -92,7 +92,7 @@ async def main(bot, *args, **kwargs):
         if args[0] == 'en': 
             braille_table = EN_BR
             del args[0]
-        elif args[0] == 'r':
+        elif args[0] == 'ru':
             del args[0]
         
         text = ' '.join(args)
