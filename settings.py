@@ -12,3 +12,4 @@ owner = 'username'
 # Modules specific
 azure_bing_api_key = ''  # for `img` module
 google_api_key = ''  # for `g` module
+mashape_key = ''  # for `wtf` module
