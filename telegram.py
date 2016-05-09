@@ -294,7 +294,7 @@ class Bot(object):
         if attempt and attempt > 4:
             return []
 
-        kwargs.update(timeout=(1, 4))
+        kwargs.update(timeout=(getattr(self.settings, 'updates_timeout', 60), 4))
 
         uri = 'https://api.telegram.org/bot{}/{}'.format(
             self.token, method_name)
