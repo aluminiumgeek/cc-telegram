@@ -33,20 +33,24 @@ def main(bot, *args, **kwargs):
     key = getattr(bot.settings, 'google_api_key', None)
     if not key:
         return 'Google API Key is not specified in settings'
+    cx = getattr(bot.settings, 'google_cse_cx', None)
+    if not cx:
+        return 'Google Custom Search Engine CX is not specified in settings'
     params = {
-        'v': '1.0',
+        'cx': cx,
         'q': query,
         'key': key
     }
-    response = requests.get('http://ajax.googleapis.com/ajax/services/search/web', params=params)
+    response = requests.get('https://www.googleapis.com/customsearch/v1?parameters', params=params)
+
     try:
         response = json.loads(response.content.decode('utf-8'))
     except ValueError:
         return 'Can not get results'
 
-    items = response.get('responseData', {}).get('results', [])
+    items = response.get('items', [])
     if len(items) > 0:
         item = items[0]
-        return '{}\n{}\n{}'.format(item['titleNoFormatting'], re.sub(r'<.*?>', '', item['content']), unquote(item['url']))
+        return '{}\n{}\n{}'.format(item['title'], re.sub(r'<.*?>', '', item['snippet']), unquote(item['link']))
 
     return 'No such items'
