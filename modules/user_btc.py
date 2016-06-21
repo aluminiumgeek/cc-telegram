@@ -1,5 +1,4 @@
 import json
-from attrdict import AttrDict
 
 from modules.utils import http
 
@@ -18,7 +17,7 @@ async def main(bot, *args, **kwargs):
     for ticker in tickers:
         try:
             response_body = await http.perform_request(ticker['url'], 'GET')
-            response_json = AttrDict(json.loads(response_body))
+            response_json = json.loads(response_body)
         except:
             continue
 
