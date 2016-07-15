@@ -12,8 +12,8 @@ def check_store(bot, url):
         return bot.store.get(url)
 
 
-def response(bot, message):
-    bot.img_last_time = datetime.now()
+def response(bot, message, chat_id):
+    setattr(bot, 'img_last_time_{}'.format(chat_id), datetime.now())
     return message
 
 
@@ -27,26 +27,27 @@ def main(bot, *args, **kwargs):
 
     global response
 
+    chat_id = kwargs.pop('chat_id')
     query = ' '.join(args)
-    last_query = getattr(bot, 'img_last_query', None)
+    last_query = getattr(bot, 'img_last_query_{}'.format(chat_id), None)
     i = 0
 
-    last_time = getattr(bot, 'img_last_time', None)
+    last_time = getattr(bot, 'img_last_time_{}'.format(chat_id), None)
     if last_time and last_time > datetime.now() - timedelta(seconds=1):
         return 'Not so fast'
 
     if last_query == query or (not args and last_query):
         if not args:
             query = last_query
-        i = bot.img_last_num + 1
+        i = getattr(bot, 'img_last_num_{}'.format(chat_id)) + 1
     elif not args:
-        return response(bot, 'Invalid syntax, read `/man img`')
+        return response(bot, 'Invalid syntax, read `/man img`', chat_id)
 
-    bot.img_last_query = query
+    setattr(bot, 'img_last_query_{}'.format(chat_id), query)
 
     key = getattr(bot.settings, 'azure_bing_api_key', None)
     if not key:
-        return response(bot, 'Azure Bing API Key is not specified in settings')
+        return response(bot, 'Azure Bing API Key is not specified in settings', chat_id)
     auth = base64.b64encode(bytes('{0}:{0}'.format(key), 'utf-8'))
     headers = {'Authorization': 'Basic {}'.format(auth.decode('utf-8'))}
 
@@ -56,24 +57,24 @@ def main(bot, *args, **kwargs):
         try:
             azure_response = requests.get('https://api.datamarket.azure.com/Bing/Search/v1/Image?Market=%27ru-RU%27&Adult=%27Moderate%27&Query=%27{}%27&$format=json&$top=20'.format(query), headers=headers, timeout=(1, 2)).content
         except requests.exceptions.Timeout:
-            return response(bot, 'Can not get results')
+            return response(bot, 'Can not get results', chat_id)
         except RequestException:
             return response(bot, 'Can not get results')
-        bot.img_last_response = azure_response
+        setattr(bot, 'img_last_response_{}'.format(chat_id), azure_response)
     else:
-        azure_response = bot.img_last_response
+        azure_response = getattr(bot, 'img_last_response_{}'.format(chat_id))
 
     try:
         search_data = json.loads(azure_response.decode('utf-8'))
     except ValueError:
-        return response(bot, 'Can not get results')
+        return response(bot, 'Can not get results', chat_id)
 
     results = search_data.get('d', {}).get('results', [])
     if len(results) >= i + 1:
         while results[i - 1 if i > 1 else i:]:
-            bot.img_last_num = i
+            setattr(bot, 'img_last_num_{}'.format(chat_id), i)
             if len(results) <= i:
-                return response(bot, 'No such images')
+                return response(bot, 'No such images', chat_id)
             url = results[i]['MediaUrl']
             ext = url.rsplit('.', 1)[1]
             if ext.lower() in ('jpg', 'jpeg', 'gif', 'png'):
@@ -83,9 +84,9 @@ def main(bot, *args, **kwargs):
                     break
             i += 1
         else:
-            return response(bot, 'No such images')
+            return response(bot, 'No such images', chat_id)
 
-        data = {'chat_id': kwargs.get('chat_id')}
+        data = {'chat_id': chat_id}
         if file_id:
             data.update(photo=file_id)
             files = None
@@ -93,7 +94,7 @@ def main(bot, *args, **kwargs):
             files = {'photo': ('file.{}'.format(ext), photo, results[i]['ContentType'])}
 
         # Send custom chat action
-        bot.pre_send(chat_id=kwargs.get('chat_id'), action='upload_photo')
+        bot.pre_send(chat_id=chat_id, action='upload_photo')
 
         telegram_response = bot.call(
             'sendPhoto',
@@ -101,12 +102,12 @@ def main(bot, *args, **kwargs):
             data=data,
             files=files
         )
-        bot.img_last_time = datetime.now()
+        setattr(bot, 'img_last_time_{}'.format(chat_id), datetime.now())
         if telegram_response and telegram_response.get('photo') and not file_id and bot.store:
             bot.store.set(url, telegram_response['photo'][-1]['file_id'])
         elif not telegram_response or telegram_response.get('status_code') == 400:
             return "Telegram can't process the image"
     else:
-        return response(bot, 'No such images')
+        return response(bot, 'No such images', chat_id)
 
 main.prevent_pre_send = True
