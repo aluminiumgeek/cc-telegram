@@ -224,7 +224,7 @@ class Bot(object):
                     cmd_main = self.commands[command_type][cmd]
                     if not getattr(cmd_main, 'prevent_pre_send', None):
                         self.pre_send()
-                    return self.executor.call(cmd_main, self, *args, chat_id=self.chat_id)
+                    return self.executor.call(cmd_main, self, *args, chat_id=self.chat_id, update=update)
                 except TypeError as e:
                     if 'positional argument' in str(e):
                         result = 'wrong parameters'
