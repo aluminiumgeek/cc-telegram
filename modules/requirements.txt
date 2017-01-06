@@ -1,2 +1,4 @@
 redis==2.10.5
 aiohttp==0.21.5
+wolframalpha==3.0
+pyquery==1.2.17
