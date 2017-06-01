@@ -8,8 +8,8 @@ from modules.utils import http
 
 async def main(bot, *args, **kwargs):
     """
-    btc
-    Get latest bitcoin price
+    bm
+    Random news from http://breakingmad.me/
     """
     news_id = random.randint(3,9524)
     try:
