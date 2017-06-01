@@ -25,5 +25,5 @@ async def main(bot, *args, **kwargs):
     text = re.sub(r'(\[url="(.+)"\])(.+)(\[\/url\])', r'\3',value['text'])
 
 
-    text = "*%(title)s* \n\n %(text)s"%locals()
+    text = "*{}*\n\n{}".format(title, text)
     await http.send(bot, chat_id=kwargs.get('chat_id'), text=text, data={'disable_web_page_preview': True, 'parse_mode': 'Markdown'})
