@@ -23,7 +23,6 @@ async def main(bot, *args, **kwargs):
     value = response_json[0]
     title = value['title']
     text = re.sub(r'(\[url="(.+)"\])(.+)(\[\/url\])',r'\3',value['text'])
-    print('text')
 
 
     text = "*%(title)s* \n\n %(text)s"%locals()
