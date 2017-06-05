@@ -17,13 +17,11 @@ async def main(bot, *args, **kwargs):
         response_json = json.loads(response_body)
     except:
         print("Unexpected error:", sys.exc_info()[0])
-
-
+        return "Can't get data"
 
     value = response_json[0]
     title = value['title']
     text = re.sub(r'(\[url="(.+)"\])(.+)(\[\/url\])', r'\3',value['text'])
-
 
     text = "*{}*\n\n{}".format(title, text)
     await http.send(bot, chat_id=kwargs.get('chat_id'), text=text, data={'disable_web_page_preview': True, 'parse_mode': 'Markdown'})
