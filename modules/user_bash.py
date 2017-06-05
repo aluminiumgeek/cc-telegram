@@ -1,6 +1,5 @@
 import random
 import sys
-import re
 
 from lxml import html
 from modules.utils import http
