@@ -14,8 +14,7 @@ async def main(bot, *args, **kwargs):
         response_body = await http.perform_request("http://bash.im/random", 'GET')
     except:
         print("Unexpected error:", sys.exc_info()[0])
-
-
+        return "Can't get data"
 
     tree = html.fromstring(response_body)
     quotes = tree.xpath('//div[@class = "quote"]/div[@class = "text"]/..')
@@ -24,6 +23,5 @@ async def main(bot, *args, **kwargs):
     for br in text.xpath('.//br'):
         br.tail = '\n' + br.tail if br.tail else '\n'
     text = text.text_content()
-
 
     await http.send(bot, chat_id=kwargs.get('chat_id'), text=text, data={'disable_web_page_preview': True})
