@@ -14,3 +14,9 @@ azure_bing_api_key = ''  # for `img` module
 google_api_key = ''  # for `g` module
 google_cse_cx = ''  # for `g` module. CX of custom search engine
 mashape_key = ''  # for `wtf` module
+twitter_keys = {
+    'consumer_key': '',
+    'consumer_secret': '',
+    'access_token_key': '',
+    'access_token_secret': ''
+}
