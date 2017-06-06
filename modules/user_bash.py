@@ -7,7 +7,7 @@ from modules.utils import http
 
 async def main(bot, *args, **kwargs):
     """
-    bash
+    bash [query]
     Search for quote on http://bash.im/
     If no query specified, return random quote.
     """
