@@ -12,6 +12,7 @@ def message_author(reply):
         name = message_from.get('username', message_from.get('id'))	
     return name
 
+
 def main(bot, *args, **kwargs):
     """
     /tweet
@@ -49,17 +50,19 @@ def main(bot, *args, **kwargs):
         file_path = file_info.get('file_path')
         file_url = "https://api.telegram.org/file/bot{}/{}".format(bot.settings.token, file_path)
         media = prepare_binary_from_url(file_url)
-        #hacking for compatability
+        # Hacking for compatibility
         setattr(media, 'mode', 'rb')
         setattr(media, 'name', 'tmp_file.jpg')
         text = message_author(reply)
+        if reply.get('text'):
+    		text = '{}: {}'.format(text, reply['text'])
     elif reply.get('text'):
         name = message_author(reply)
         text = "{}: {}".format(name, reply['text'])
     else:
         return
     try:
-        tweet = api.PostUpdate(text,media)
+        tweet = api.PostUpdate(text, media)
         screen_name = tweet.user.screen_name
         result = "https://twitter.com/{}/status/{}".format(screen_name, tweet.id_str)
     except twitter.error.TwitterError as e:
