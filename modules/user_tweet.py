@@ -55,7 +55,7 @@ def main(bot, *args, **kwargs):
         setattr(media, 'name', 'tmp_file.jpg')
         text = message_author(reply)
         if reply.get('text'):
-    		text = '{}: {}'.format(text, reply['text'])
+            text = '{}: {}'.format(text, reply['text'])
     elif reply.get('text'):
         name = message_author(reply)
         text = "{}: {}".format(name, reply['text'])
