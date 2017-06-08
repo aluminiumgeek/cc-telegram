@@ -31,7 +31,7 @@ def main(bot, message, update, *args, **kwargs):
 
             bot.pre_send(chat_id=chat_id, action='upload_video')
 
-            clip.write_videofile(clip_filename, threads=4, preset='superfast')
+            clip.write_videofile(clip_filename, threads=4, preset='superfast', audio_codec='aac')
 
             data.update(width=clip.w, height=clip.h, duration=clip.duration)
             files = {'video': (clip_filename, open(clip_filename, 'rb'), 'video/mp4')}
