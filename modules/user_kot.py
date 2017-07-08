@@ -1,6 +1,8 @@
 import re
 import requests
 
+from modules.utils.data import prepare_binary_from_url
+
 def main(bot, *args, **kwargs):
     """
     kot
@@ -19,6 +21,23 @@ def main(bot, *args, **kwargs):
         bot.store.set('kot_matricies', matricies)
         curr_index = 0
 
+    matrix = matricies[curr_index]
+    ext = matrix.split('.')[2]
+    chat_id = kwargs.pop('chat_id')
+
+    bot.pre_send(chat_id = chat_id, action='upload_photo')
+
+    bot.call(
+        'sendPhoto',
+        'POST',
+        data = { 'chat_id': chat_id },
+        files = { 'photo': (
+            'file.{}'.format(ext),
+            prepare_binary_from_url(matrix),
+            'image/' + ext
+        )}
+    )
+
     bot.store.set('kot_index', curr_index + 1)
 
-    return matricies[curr_index]
+main.prevent_pre_send = True
