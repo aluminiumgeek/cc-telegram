@@ -1,5 +1,6 @@
 import re
 import requests
+import json
 
 from modules.utils.data import prepare_binary_from_url
 
@@ -9,29 +10,29 @@ def main(bot, *args, **kwargs):
     Stupid cat memes from http://kotomatrix.ru
     """
 
-    matricies = bot.store.get('kot_matricies', default = [])
-    curr_index = bot.store.get('kot_index', default = 0)
+    matricies = json.loads(bot.store.get('kot_matricies') or '[]')
+    curr_index = int(bot.store.get('kot_index') or 0)
 
-    if curr_index >= len(matricies) :
+    if curr_index >= len(matricies):
         response = requests.get('http://kotomatrix.ru/rand/')
         matricies = list(set(re.findall(
             "http://kotomatrix.ru/images/.*.jpg",
             response.content.decode('utf-8')
         )))
-        bot.store.set('kot_matricies', matricies)
+        bot.store.set('kot_matricies', json.dumps(matricies))
         curr_index = 0
 
     matrix = matricies[curr_index]
     ext = matrix.split('.')[2]
     chat_id = kwargs.pop('chat_id')
 
-    bot.pre_send(chat_id = chat_id, action='upload_photo')
+    bot.pre_send(chat_id=chat_id, action='upload_photo')
 
     bot.call(
         'sendPhoto',
         'POST',
-        data = { 'chat_id': chat_id },
-        files = { 'photo': (
+        data = {'chat_id': chat_id},
+        files = {'photo': (
             'file.{}'.format(ext),
             prepare_binary_from_url(matrix),
             'image/' + ext
