@@ -23,7 +23,7 @@ class TemporaryStore(object):
     def __init__(self):
         self.store = {}
 
-    def get(self, key: str, default: Any) -> Any:
+    def get(self, key: str, default: Any = None) -> Any:
         return self.store.get(key, default)
 
     def set(self, key: str, value: Any) -> None:
