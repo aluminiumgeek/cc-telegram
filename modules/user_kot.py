@@ -10,7 +10,7 @@ def main(bot, *args, **kwargs):
     Stupid cat memes from http://kotomatrix.ru
     """
 
-    matricies = json.loads(bot.store.get('kot_matricies') or '[]')
+    matricies = json.loads(bot.store.get('kot_matricies').decode() or '[]')
     curr_index = int(bot.store.get('kot_index') or 0)
 
     if curr_index >= len(matricies):
