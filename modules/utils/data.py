@@ -15,12 +15,12 @@ def prepare_binary_from_url(url):
         return BytesIO(content)
 
 
-def download_file(url, max_length=20 * 1024 * 1024):
+def download_file(url, max_length=20 * 1024 * 1024, headers={}):
     try:
         length = requests.head(url).headers.get('content-length', 0)
         if int(length) > max_length:
             return
-        r = requests.get(url, timeout=(1, 3), stream=True)
+        r = requests.get(url, timeout=(1, 3), stream=True, headers=headers)
         ext = url.rsplit('.', 1)[1]
         file_name = '{}.{}'.format(uuid.uuid4(), ext)
         with open(file_name, 'wb') as f:
