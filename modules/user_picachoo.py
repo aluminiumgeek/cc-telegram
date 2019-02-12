@@ -35,7 +35,7 @@ def main(bot, *args, **kwargs):
         matricies = list(
             map(lambda x: 'https://picachoo.ru{}'.format(x.replace('/thumb', '')), matricies))
         bot.store.set('picachoo_matricies', json.dumps(matricies))
-        curr_page = curr_page + 1
+        curr_page += 1
         curr_index = 0
 
     if not user_page is None and not user_index is None:
