@@ -6,9 +6,9 @@ from io import BytesIO
 from requests.exceptions import RequestException
 
 
-def prepare_binary_from_url(url):
+def prepare_binary_from_url(url, verify=True):
     try:
-        content = requests.get(url, timeout=(1, 3)).content
+        content = requests.get(url, timeout=(1, 3), verify=verify).content
     except RequestException:
         pass
     else:
