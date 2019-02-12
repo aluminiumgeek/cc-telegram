@@ -61,7 +61,7 @@ def main(bot, *args, **kwargs):
         data={'chat_id': chat_id},
         files={'photo': (
             'file.{}'.format(ext),
-            prepare_binary_from_url(matrix),
+            prepare_binary_from_url(matrix, verify=False),
             'image/' + ext
         )}
     )
