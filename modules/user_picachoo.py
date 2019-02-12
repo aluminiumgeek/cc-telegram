@@ -4,17 +4,19 @@ import json
 
 from modules.utils.data import prepare_binary_from_url
 
+
 def main(bot, *args, **kwargs):
     """
     picachoo
-    Random pic from picachoo.ru Usage: /picachoo [page number from 0] [pic number from 0]
+    Return picture from picachoo.ru
+    Usage: /picachoo [pic number] [page number]
     """
     user_page = None
     user_index = None
 
     try:
-        user_page = int(args[0])
-        user_index = int(args[1])
+        user_page = int(args[1])
+        user_index = int(args[0])
     except:
         pass
 
@@ -26,9 +28,12 @@ def main(bot, *args, **kwargs):
         curr_page = user_page
 
     if curr_index >= len(matricies) or not user_page is None:
-        response = requests.get('https://www.picachoo.ru/more/' + str(curr_page + 1), verify=False)
-        matricies = list(set(re.findall( "/files/thumb/.*?.jpg", response.content.decode('utf-8'))))
-        matricies = list(map(lambda x: 'https://picachoo.ru' + x.replace('/thumb', ''), matricies))
+        response = requests.get(
+            'https://www.picachoo.ru/more/{}'.format(curr_page + 1), verify=False)
+        matricies = list(
+            set(re.findall("/files/thumb/.*?.jpg", response.content.decode('utf-8'))))
+        matricies = list(
+            map(lambda x: 'https://picachoo.ru{}'.format(x.replace('/thumb', '')), matricies))
         bot.store.set('picachoo_matricies', json.dumps(matricies))
         curr_page = curr_page + 1
         curr_index = 0
@@ -53,8 +58,8 @@ def main(bot, *args, **kwargs):
     bot.call(
         'sendPhoto',
         'POST',
-        data = {'chat_id': chat_id},
-        files = {'photo': (
+        data={'chat_id': chat_id},
+        files={'photo': (
             'file.{}'.format(ext),
             prepare_binary_from_url(matrix),
             'image/' + ext
