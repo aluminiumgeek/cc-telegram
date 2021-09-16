@@ -20,9 +20,7 @@ def main(bot, *args, **kwargs):
     message = kwargs['update']['message']
 
     reply = message.get('reply_to_message', None)
-
-    chat_id = message.get('peer_id')
-    
+   
     if reply is None:
         name = message_author(message)
         text = "{}: {}".format(name, ' '.join(args))
