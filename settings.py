@@ -20,3 +20,4 @@ twitter_keys = {
     'access_token_key': '',
     'access_token_secret': ''
 }
+channel_id = ''
