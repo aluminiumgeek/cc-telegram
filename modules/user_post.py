@@ -30,9 +30,6 @@ def main(bot, *args, **kwargs):
         }
         channel_message = bot.call('sendMessage', 'POST', data=data)
     else:
-        name = message_author(reply)
-        from_chat_id = reply.get('peer_id')
-        reply_id = reply.get('id')
         data = {
             'from_chat_id': reply.get('chat').get('id'),
             'chat_id': channel_id,
