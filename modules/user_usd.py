@@ -10,7 +10,8 @@ async def main(bot, *args, **kwargs):
         url = 'https://ru.investing.com/currencies/usd-rub'
         response_body = await http.perform_request(url, 'GET')
         tree = html.fromstring(response_body)
-        result = tree.xpath('//span[@class="text-2xl"]/text()')[0]
+        quote = tree.xpath('//span[@class="text-2xl"]/text()')[0]
+        result = "{} ₽".format(quote)
     except Exception as e:
         result = "Polomkah: {}".format(e)
 
