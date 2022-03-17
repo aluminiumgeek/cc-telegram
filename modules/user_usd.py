@@ -1,5 +1,5 @@
 from modules.utils import http
-from lxml import html
+import json
 
 async def main(bot, *args, **kwargs):
     """
@@ -7,10 +7,10 @@ async def main(bot, *args, **kwargs):
     Get latest USD/RUB quote
     """
     try:
-        url = 'https://ru.investing.com/currencies/usd-rub'
+        url = 'https://api.tinkoff.ru/v1/currency_rates?from=USD&to=RUB'
         response_body = await http.perform_request(url, 'GET')
-        tree = html.fromstring(response_body)
-        quote = tree.xpath('//span[@class="text-2xl"]/text()')[0]
+        response_json = json.loads(response_body)
+        quote = response_json['payload']['rates'][0]['sell']
         result = "{} ₽".format(quote)
     except Exception as e:
         result = "Polomkah: {}".format(e)
