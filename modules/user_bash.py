@@ -1,37 +1,57 @@
 import random
+import requests
 import sys
 
 from lxml import html
-from modules.utils import http
 
 
 async def main(bot, *args, **kwargs):
     """
     bash [query]
-    Search for quote on http://bash.im/
+    Search for quote on https://bash.im
     If no query specified, return random quote.
     """
 
-    path = 'index' if args else 'random'
-    params = {'text': ' '.join(args).encode('windows-1251')} if args else {}
-    url = 'http://bash.im/{}'.format(path)
+    if args:
+        path = 'search'
+        params = {
+            'text': ' '.join(args).encode('utf-8')
+        }
+    else:
+        path = 'random'
+        params = {}
 
+    url = 'https://bash.im/{}'.format(path)
     try:
-        response_body = await http.perform_request(url, 'GET', params=params)
+        response = requests.get(url, params=params, verify=False)
+        response_body = response.content.decode('utf-8')
+        response_html = html.fromstring(response_body)
     except:
         print("Unexpected error:", sys.exc_info()[0])
         return "Can't get data"
 
-    tree = html.fromstring(response_body)
-    quotes = tree.xpath('//div[@class = "quote"]/div[@class = "text"]/..')
+    quotes = response_html.xpath('//article[@class = "quote"]')
     if not quotes:
-      return 'No such items'
+        return 'No such items'
 
     quote = random.choice(quotes)
-    quote_id = quote.xpath('.//div[@class = "actions"]/a[@class = "id"]')[0]
-    quote_text = quote.xpath('.//div[@class = "text"]')[0]
-    for br in quote_text.xpath('.//br'):
-        br.tail = '\n' + br.tail if br.tail else '\n'
+    [quote_body] = quote.find_class('quote__body')
 
-    text = '{}\n{}'.format(quote_id.text_content(), quote_text.text_content())
-    await http.send(bot, chat_id=kwargs.get('chat_id'), text=text, data={'disable_web_page_preview': True})
+    for br in quote_body.findall('br'):
+        br.tail = '\n{}'.format(br.tail or '')
+
+    quote_id = quote.get('data-quote')
+    quote_text = quote_body.text_content().strip()
+
+    result_text = '#{0}\n{1}'.format(quote_id, quote_text)
+
+    bot.call(
+        'sendMessage',
+        'POST',
+        data={
+            'chat_id': kwargs.get('chat_id'),
+            'disable_web_page_preview': True,
+            'parse_mode': None,
+            'text': result_text
+        }
+    )
