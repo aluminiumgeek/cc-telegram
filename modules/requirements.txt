@@ -4,4 +4,5 @@ wolframalpha==3.0
 pyquery==1.2.17
 python-twitter==3.3
 lxml==4.8.0
+insta-scrape==2.1.2
 git+https://github.com/Zulko/moviepy.git@1c5c6336602f6164b38d27a6dbfa3ed5c5f7c402
