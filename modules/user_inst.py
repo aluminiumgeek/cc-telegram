@@ -51,4 +51,4 @@ async def main(bot, *args, **kwargs):
     except Exception as e:
         return f"Polomkah: {e}"
     finally:
-        file_path and os.path.exists(file_path) os.remove(file_path)
+        file_path and os.path.exists(file_path) and os.remove(file_path)
