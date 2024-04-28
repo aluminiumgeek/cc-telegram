@@ -36,9 +36,8 @@ async def call(bot, method_name: str, http_method: str, **kwargs):
 
     uri = 'https://api.telegram.org/bot{}/{}'.format(
         bot.token, method_name)
-    session = aiohttp.ClientSession()
     try:
-        with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession() as session:
             async with session.request(method=http_method, url=uri, **kwargs) as response:
                 logging.debug('modules.utils.http.call :: url: {}, status: {}'.format(uri, response.status))
                 response_text = await response.text()
@@ -52,7 +51,7 @@ async def call(bot, method_name: str, http_method: str, **kwargs):
 
 async def perform_request(url, method, params={}):
     try:
-        with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession() as session:
             async with session.request(method=method, url=url, params=params) as response:
                 logging.debug('modules.utils.http.make_request :: url: {}, status: {}'.format(url, response.status))
                 response_text = await response.text()
