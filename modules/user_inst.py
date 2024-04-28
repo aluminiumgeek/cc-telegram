@@ -1,13 +1,17 @@
+import os
+import re
+import time
+
 from modules.utils import http
 from instascrape import Reel
-import time
-import json
+
 
 async def main(bot, *args, **kwargs):
     """
-    inst
+    inst <Reel URL>
     Get reels media by link
     """
+    file_path = None
     try:
         inst_options = getattr(bot.settings, 'inst_keys', None)
         if not inst_options:
@@ -23,13 +27,14 @@ async def main(bot, *args, **kwargs):
             "cookie": f'sessionid={SESSIONID};'
         }
 
-        url = message = kwargs['update']['message']
-        if not url:
+        url = args[0] if args else None
+        if not url or not re.match(r'^https://(www\.)?instagram.com/', url):
             return 'Nothing to download'
 
         # Passing Instagram reel link as argument in Reel Module
         insta_reel = Reel(url)
 
+        chat_id = kwargs.get('chat_id')
         bot.pre_send(chat_id=chat_id, action='upload_video')
 
         # Using  scrape function and passing the headers
@@ -40,16 +45,10 @@ async def main(bot, *args, **kwargs):
         # download function
         insta_reel.download(fp=file_path)
         
-        chat_id = kwargs.get('chat_id')
         files = {'video': (file_path, open(file_path, 'rb'), 'video/mp4')}
         data = {'chat_id': chat_id, 'disable_notification': True}
         telegram_response = bot.call('sendVideo', 'POST', data=data, files=files)
     except Exception as e:
-        result = "Polomkah: {}".format(e)
+        return f"Polomkah: {e}"
     finally:
-        os.remove(file_path)
-
-
-
- 
-
+        file_path and os.path.exists(file_path) os.remove(file_path)
