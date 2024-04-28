@@ -21,3 +21,6 @@ twitter_keys = {
     'access_token_secret': ''
 }
 channel_id = ''
+inst_keys = {
+    'sessionid': ''
+}
