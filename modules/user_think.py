@@ -25,7 +25,7 @@ async def main(bot, *args, **kwargs):
             'temperature': 0.6,
             'presence_penalty': 0.5,
             'frequency_penalty': 0.5,
-            'max_tokens': 1500
+            'max_tokens': 400
         }
         response_body = http.perform_request(url, 'POST', headers=headers, data=json.dumps(data))
         response_json = json.loads(response_body)
