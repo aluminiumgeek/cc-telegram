@@ -20,7 +20,7 @@ async def main(bot, *args, **kwargs):
             'Content-Type': 'application/json'
         }
         data = {
-            'model': 'gpt-4-mini',
+            'model': 'gpt-4o-mini',
             'messages': [{'role': 'system', 'content': system_prompt}, {'role': 'user', 'content': prompt}],
             'temperature': 0.6,
             'presence_penalty': 0.5,
