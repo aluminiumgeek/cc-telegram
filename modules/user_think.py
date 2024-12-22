@@ -9,7 +9,11 @@ async def main(bot, *args, **kwargs):
     try:
         url = 'https://api.openai.com/v1/chat/completions'
         system_prompt = "Think about it"
-        prompt = kwargs['update']['message']
+        message = kwargs['update']['message']
+        reply = message.get('reply_to_message', None)
+        if reply is None:
+            return 'Nothing to think about'
+        prompt = reply.get('text', '')
         openai_api_key = getattr(bot.settings, 'open_ai_api_key', None)
         headers = {
             'Authorization': f'Bearer {openai_api_key}',
