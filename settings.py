@@ -21,3 +21,4 @@ twitter_keys = {
     'access_token_secret': ''
 }
 channel_id = ''
+open_ai_api_key = ''  # for `think` module
