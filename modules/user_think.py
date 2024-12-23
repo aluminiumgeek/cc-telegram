@@ -1,5 +1,7 @@
-from modules.utils import http
 import json
+
+from modules.utils import http
+
 
 async def main(bot, *args, **kwargs):
     """
@@ -27,7 +29,7 @@ async def main(bot, *args, **kwargs):
             'frequency_penalty': 0.5,
             'max_tokens': 400
         }
-        response_body = http.perform_request(url, 'POST', headers=headers, data=json.dumps(data))
+        response_body = await http.perform_request(url, 'POST', headers=headers, data=json.dumps(data))
         response_json = json.loads(response_body)
         result = response_json['choices'][0]['message']['content']
     except Exception as e:

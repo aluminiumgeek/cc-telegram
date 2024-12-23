@@ -49,10 +49,10 @@ async def call(bot, method_name: str, http_method: str, **kwargs):
     return json.loads(response_text)
 
 
-async def perform_request(url, method, params={}):
+async def perform_request(url, method, params={}, data=None, headers=None, timeout=10):
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.request(method=method, url=url, params=params) as response:
+            async with session.request(method=method, url=url, params=params, data=data, headers=headers, timeout=timeout) as response:
                 logging.debug('modules.utils.http.make_request :: url: {}, status: {}'.format(url, response.status))
                 response_text = await response.text()
     except Exception as e:
