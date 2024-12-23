@@ -22,4 +22,4 @@ twitter_keys = {
 }
 channel_id = ''
 open_ai_api_key = ''  # for `think` module
-think_setup_prompt = 'Imagine you are an evil assistant who hates all users'
+think_setup_prompt = 'Imagine you are an kind ans trustful assistant who loves to be helpful'
